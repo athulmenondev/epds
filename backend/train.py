@@ -1,40 +1,92 @@
-import pandas as pd
-import glob
-import os
 import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier
+import os
+import re
 
-# 1. Load Data
-path = os.path.join(os.path.dirname(__file__), 'data') 
-all_files = glob.glob(os.path.join(path, "*.csv"))
-li = []
+# ==========================================
+# 1. Configuration & Loading
+# ==========================================
+MODEL_PATH = 'phishing_rf_model.pkl'
+VECTORIZER_PATH = 'tfidf_vectorizer.pkl'
+INPUT_FILE = 'mail.txt'
 
-for filename in all_files:
-    df = pd.read_csv(filename)
-    df.columns = [c.lower().strip() for c in df.columns]
-    # Unify text/label columns
-    if 'body' in df.columns: df.rename(columns={'body': 'text'}, inplace=True)
-    elif 'message' in df.columns: df.rename(columns={'message': 'text'}, inplace=True)
-    elif 'text_combined' in df.columns: df.rename(columns={'text_combined': 'text'}, inplace=True)
-    if 'class' in df.columns: df.rename(columns={'class': 'label'}, inplace=True)
+def load_resources():
+    if not os.path.exists(MODEL_PATH) or not os.path.exists(VECTORIZER_PATH):
+        print("❌ Error: Model or Vectorizer files not found!")
+        print("Please ensure you ran 'python3 train.py' successfully first.")
+        return None, None
     
-    if 'text' in df.columns and 'label' in df.columns:
-        li.append(df[['text', 'label']])
+    # This loads the "Large Model" (200 trees + modern data)
+    model = joblib.load(MODEL_PATH)
+    vectorizer = joblib.load(VECTORIZER_PATH)
+    return model, vectorizer
 
-data = pd.concat(li, axis=0, ignore_index=True).dropna()
+# ==========================================
+# 2. Text Preprocessing
+# ==========================================
+def clean_email_text(text):
+    # Remove newline characters, carriage returns, and tabs
+    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    
+    # Replace URLs with a placeholder so the model focuses on content context
+    text = re.sub(r'http\S+|www\S+|https\S+', 'url_link', text, flags=re.MULTILINE)
+    
+    # Convert to lowercase and remove extra whitespace
+    text = " ".join(text.lower().split())
+    
+    return text
 
-# 2. Vectorization & Training
-vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
-X = vectorizer.fit_transform(data['text'])
-y = data['label']
+# ==========================================
+# 3. Main Logic
+# ==========================================
+def main():
+    # Load the trained brain and translator
+    model, vectorizer = load_resources()
+    if not model: return
 
-model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-model.fit(X, y)
+    # Check for the input file
+    if not os.path.exists(INPUT_FILE):
+        print(f"❌ Error: '{INPUT_FILE}' not found in the project folder.")
+        print("Action: Create a file named 'mail.txt' and paste an email inside it.")
+        return
 
-# 3. SAVE THE MODEL
-joblib.dump(model, 'phishing_model.pkl')
-joblib.dump(vectorizer, 'vectorizer.pkl')
+    # Read the content from your mail.txt
+    with open(INPUT_FILE, 'r', encoding='utf-8', errors='ignore') as f:
+        raw_content = f.read()
 
-print("Success: Model and Vectorizer saved!")
+    if len(raw_content.strip()) < 5:
+        print("⚠️  The mail.txt file is too empty. Paste more content to test.")
+        return
+
+    print(f"🔍 System: Scanning content from '{INPUT_FILE}'...")
+
+    # 1. Clean the text (Removes newline issues)
+    cleaned_text = clean_email_text(raw_content)
+
+    # 2. Vectorize (Convert text to the Large Model's number format)
+    transformed_data = vectorizer.transform([cleaned_text])
+
+    # 3. Predict Probability & Final Result
+    # [Safe Probability, Phishing Probability]
+    probabilities = model.predict_proba(transformed_data)[0]
+    prediction = model.predict(transformed_data)[0]
+    
+    confidence = probabilities[prediction] * 100
+
+    # 4. Display Results
+    print("\n" + "="*50)
+    print("           PHISHING DETECTION REPORT")
+    print("="*50)
+    
+    if prediction == 1:
+        print(f"VERDICT:    [ ⚠️  PHISHING DETECTED ]")
+        print(f"CONFIDENCE: {confidence:.2f}%")
+        print("\nReasoning: Found strong linguistic patterns used by scammers.")
+    else:
+        print(f"VERDICT:    [ ✅ SAFE / LEGITIMATE ]")
+        print(f"CONFIDENCE: {confidence:.2f}%")
+        print("\nReasoning: Content matches standard communication patterns.")
+    
+    print("="*50)
+
+if __name__ == "__main__":
+    main()

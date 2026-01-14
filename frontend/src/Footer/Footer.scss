@@ -1,0 +1,21 @@
+.footer {
+    margin-top: auto;
+    padding: 40px;
+    text-align: center;
+    color: var(--outline);
+    position: relative;
+    z-index: 2;
+
+    p {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .footer-logo {
+        height: 20px;
+        width: auto;
+        opacity: 0.8;
+    }
+}

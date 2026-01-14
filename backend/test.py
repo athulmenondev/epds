@@ -12,9 +12,10 @@ INPUT_FILE = 'mail.txt'
 def load_resources():
     if not os.path.exists(MODEL_PATH) or not os.path.exists(VECTORIZER_PATH):
         print("❌ Error: Model or Vectorizer files not found!")
-        print("Please run your training script (train.py) first.")
+        print("Please ensure you ran 'python3 train.py' successfully first.")
         return None, None
     
+    # This loads the "Large Model" (200 trees + modern data)
     model = joblib.load(MODEL_PATH)
     vectorizer = joblib.load(VECTORIZER_PATH)
     return model, vectorizer
@@ -26,7 +27,7 @@ def clean_email_text(text):
     # Remove newline characters, carriage returns, and tabs
     text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
     
-    # Replace URLs with a placeholder to keep features consistent
+    # Replace URLs with a placeholder so the model focuses on content context
     text = re.sub(r'http\S+|www\S+|https\S+', 'url_link', text, flags=re.MULTILINE)
     
     # Convert to lowercase and remove extra whitespace
@@ -35,55 +36,55 @@ def clean_email_text(text):
     return text
 
 # ==========================================
-# 3. Main Execution
+# 3. Main Logic
 # ==========================================
 def main():
-    # Load the "brain"
+    # Load the trained brain and translator
     model, vectorizer = load_resources()
     if not model: return
 
-    # Check if the text file exists
+    # Check for the input file
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ Error: '{INPUT_FILE}' not found.")
-        print("Please create a file named 'mail.txt' and paste your email content inside it.")
+        print(f"❌ Error: '{INPUT_FILE}' not found in the project folder.")
+        print("Action: Create a file named 'mail.txt' and paste an email inside it.")
         return
 
-    # Read the content from the file
-    with open(INPUT_FILE, 'r', encoding='utf-8') as f:
+    # Read the content from your mail.txt
+    with open(INPUT_FILE, 'r', encoding='utf-8', errors='ignore') as f:
         raw_content = f.read()
 
     if len(raw_content.strip()) < 5:
-        print("⚠️  The mail.txt file is empty or too short. Please add more content.")
+        print("⚠️  The mail.txt file is too empty. Paste more content to test.")
         return
 
-    print("🔄 Processing email from mail.txt...")
+    print(f"🔍 System: Scanning content from '{INPUT_FILE}'...")
 
-    # 1. Clean the input
+    # 1. Clean the text (Removes newline issues)
     cleaned_text = clean_email_text(raw_content)
 
-    # 2. Vectorize (Translate to numbers)
+    # 2. Vectorize (Convert text to the Large Model's number format)
     transformed_data = vectorizer.transform([cleaned_text])
 
-    # 3. Predict Probability & Class
+    # 3. Predict Probability & Final Result
+    # [Safe Probability, Phishing Probability]
     probabilities = model.predict_proba(transformed_data)[0]
     prediction = model.predict(transformed_data)[0]
+    
     confidence = probabilities[prediction] * 100
 
     # 4. Display Results
     print("\n" + "="*50)
-    print("           DETECTION RESULTS")
+    print("           PHISHING DETECTION REPORT")
     print("="*50)
     
     if prediction == 1:
-        print(f"STATUS:     [ ⚠️  PHISHING DETECTED ]")
+        print(f"VERDICT:    [ ⚠️  PHISHING DETECTED ]")
         print(f"CONFIDENCE: {confidence:.2f}%")
-        print("\nREASONING: The model identified patterns commonly found in")
-        print("fraudulent emails (urgent language, suspicious links, etc).")
+        print("\nReasoning: Found strong linguistic patterns used by scammers.")
     else:
-        print(f"STATUS:     [ ✅ SAFE / LEGITIMATE ]")
+        print(f"VERDICT:    [ ✅ SAFE / LEGITIMATE ]")
         print(f"CONFIDENCE: {confidence:.2f}%")
-        print("\nREASONING: The model identified patterns consistent with")
-        print("standard personal or business communication.")
+        print("\nReasoning: Content matches standard communication patterns.")
     
     print("="*50)
 
