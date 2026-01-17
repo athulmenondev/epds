@@ -1,106 +1,59 @@
-import pandas as pd
-import glob
-import os
+# 1. Import necessary tools
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score
 
-# ==========================================
-# 1. Load and Merge Data
-# ==========================================
-# Path points to the 'data' folder in your project directory
-path = os.path.join(os.path.dirname(__file__), 'data') 
-all_files = glob.glob(os.path.join(path, "*.csv"))
+# 2. Initialize the Flask application
+app = Flask(__name__)
 
-li = []
+# 3. Enable CORS (Cross-Origin Resource Sharing)
+# This is CRITICAL. By default, browsers block a frontend (like React) 
+# from talking to a backend on a different port. This line allows it.
+CORS(app)
 
-if not all_files:
-    print(f"Error: No CSV files found in {path}. Check your directory structure.")
-else:
-    for filename in all_files:
-        try:
-            df = pd.read_csv(filename)
-            # Standardize column names
-            df.columns = [c.lower().strip() for c in df.columns]
-            
-            # UNIFY TEXT COLUMNS: Handle 'body', 'message', and 'text_combined'
-            if 'body' in df.columns: 
-                df.rename(columns={'body': 'text'}, inplace=True)
-            elif 'message' in df.columns: 
-                df.rename(columns={'message': 'text'}, inplace=True)
-            elif 'text_combined' in df.columns: 
-                df.rename(columns={'text_combined': 'text'}, inplace=True)
-            
-            # UNIFY LABEL COLUMNS: Handle 'class' or 'status'
-            if 'class' in df.columns: 
-                df.rename(columns={'class': 'label'}, inplace=True)
-            
-            # Ensure we only keep 'text' and 'label' columns
-            if 'text' in df.columns and 'label' in df.columns:
-                li.append(df[['text', 'label']])
-            else:
-                print(f"Skipping {os.path.basename(filename)}: Required columns not found. (Found: {list(df.columns)})")
-        except Exception as e:
-            print(f"Could not read {filename}: {e}")
+# 4. Load your saved Model and Vectorizer
+# We do this OUTSIDE the route so they stay in memory (fast).
+model = joblib.load('phishing_rf_model.pkl')
+vectorizer = joblib.load('tfidf_vectorizer.pkl')
 
-# Proceed only if data was loaded
-if not li:
-    print("Error: No valid data found. Script exiting.")
-    exit()
+# 5. Define the "Predict" Route
+# We use 'POST' because we are sending data (the email text) to the server.
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # a. Get the JSON data sent by the frontend
+        data = request.get_json()
+        email_content = data.get('content', '')
 
-# Final merged dataframe
-data = pd.concat(li, axis=0, ignore_index=True).dropna()
-print(f"Total rows loaded: {len(data)}")
+        if not email_content:
+            return jsonify({'error': 'No content provided'}), 400
 
-# ==========================================
-# 2. Split Data (80% Train, 20% Test)
-# ==========================================
-X_train, X_test, y_train, y_test = train_test_split(
-    data['text'], data['label'], test_size=0.2, random_state=42
-)
+        # b. Transform the text
+        # The model doesn't understand "Dear Customer". 
+        # The vectorizer turns it into the same number patterns used in training.
+        print(email_content)
+        vectorized_text = vectorizer.transform([email_content])
 
-# ==========================================
-# 3. Text to Numbers (Vectorization)
-# ==========================================
-print("Vectorizing text data...")
-vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
-X_train_tfidf = vectorizer.fit_transform(X_train)
-X_test_tfidf = vectorizer.transform(X_test)
+        # c. Make the prediction
+        # prediction[0] will be 1 (Phishing) or 0 (Legitimate)
+        prediction = model.predict(vectorized_text)[0]
+        
+        # d. Get the probability (confidence score)
+        # predict_proba returns [[prob_0, prob_1]]. We want prob_1 (Phishing).
+        probability = model.predict_proba(vectorized_text)[0][1]
+        print("pred=", prediction, "prob=", probability)
+        # e. Send the response back as JSON
+        return jsonify({
+            'prediction': 'Phishing' if prediction == 1 else 'Legitimate',
+            'confidence': round(probability * 100, 2),
+            'status': 'success'
+        })
 
-# ==========================================
-# 4. Train Random Forest
-# ==========================================
-print("Training the Random Forest model... (this may take a minute)")
-rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
-rf.fit(X_train_tfidf, y_train)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-# ==========================================
-# 5. Evaluate
-# ==========================================
-y_pred = rf.predict(X_test_tfidf)
-print("\n--- Model Performance ---")
-print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
-print(classification_report(y_test, y_pred))
-
-# ==========================================
-# 6. Save Model and Vectorizer
-# ==========================================
-joblib.dump(rf, 'phishing_rf_model.pkl')
-joblib.dump(vectorizer, 'tfidf_vectorizer.pkl')
-print("\nModel and Vectorizer saved as .pkl files!")
-
-# ==========================================
-# 7. Quick Test Function
-# ==========================================
-def predict_email(email_content):
-    email_tfidf = vectorizer.transform([email_content])
-    prediction = rf.predict(email_tfidf)[0]
-    return "PHISHING" if prediction == 1 else "SAFE (Ham)"
-
-# Example usage
-print("-" * 30)
-test_email = "Your Amazon order has a problem. Click here to verify your payment info immediately."
-print(f"Test Email: {test_email}")
-print(f"Prediction: {predict_email(test_email)}")
+# 6. Run the server
+if __name__ == '__main__':
+    # We run on port 5000. 'debug=True' means the server restarts 
+    # automatically if you change the code.
+    app.run(host='0.0.0.0', port=5000, debug=True)

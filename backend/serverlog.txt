@@ -1,3 +1,5 @@
+ * Serving Flask app 'main'
+ * Debug mode: on
 Dear Valued Customer,
 
 We detected a series of suspicious login attempts on your account from an unrecognized IP address (192.168.1.102). For your protection, we have temporarily limited access to your account features.
@@ -9,3 +11,5 @@ Please click the link below to secure your account: http://secure-verify-login-a
 Thank you for choosing our services.
 
 Security Team
+
+pred= 1 prob= 0.98
