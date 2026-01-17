@@ -56,4 +56,4 @@ def predict():
 if __name__ == '__main__':
     # We run on port 5000. 'debug=True' means the server restarts 
     # automatically if you change the code.
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=7860, debug=True)

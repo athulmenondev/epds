@@ -20,7 +20,7 @@ function App() {
     console.log("1. Sending to Flask:", formData.content);
 
     try {
-      const res = await fetch('http://192.168.1.2:5000/predict', {
+      const res = await fetch('https://athulmenondev-epds.hf.space/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // We ensure the key is 'content' to match Flask's data.get('content')
