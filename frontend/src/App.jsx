@@ -4,7 +4,6 @@ import EmailForm from './EmailForm/EmailForm';
 import ResultDisplay from './ResultDisplay/ResultDisplay';
 import Footer from './Footer/Footer';
 import './App.scss';
-
 function App() {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
 
