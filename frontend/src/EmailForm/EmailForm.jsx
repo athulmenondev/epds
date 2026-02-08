@@ -12,7 +12,13 @@ const EmailForm = ({ onAnalyze }) => {
                 <button className={emailType === 'receiving' ? 'active' : ''} onClick={() => setEmailType('receiving')}>Receiving</button>
             </div>
             <textarea className="inputArea" placeholder="Paste email content here..." value={content} onChange={(e) => setContent(e.target.value)} />
-            <button className="submitBtn" onClick={() => onAnalyze({ emailType, content })}>Analyze Content</button>
+            <button className="submitBtn" onClick={() => {
+                if (emailType === 'sending') {
+                    alert('Feature not implemented');
+                } else {
+                    onAnalyze({ emailType, content });
+                }
+            }}>Analyze Content</button>
         </div>
     );
 };

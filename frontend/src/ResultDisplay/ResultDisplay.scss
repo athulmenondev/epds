@@ -1,4 +1,4 @@
-.result-card {
+.result-container {
     max-width: 700px;
     margin: 24px auto;
     padding: 24px;
@@ -7,12 +7,12 @@
     position: relative;
     z-index: 2;
 
-    &.phish {
+    &.is-phishing {
         background: #ffdad6;
         color: #410002;
     }
 
-    &.safe {
+    &.is-safe {
         background: #d7f0db;
         color: #002107;
     }

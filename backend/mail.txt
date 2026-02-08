@@ -1,30 +1,11 @@
-Dear Athul S Menon,
+Dear Valued Customer,
 
-A new year is here.
-Not as a reset button that magically fixes everything — but as a fresh page, waiting for your first line.
+We detected a series of suspicious login attempts on your account from an unrecognized IP address (192.168.1.102). For your protection, we have temporarily limited access to your account features.
 
-You don’t need everything figured out.
-You don’t need a perfect plan.
-You only need the courage to start — today.
+To restore full access, you must verify your identity immediately. Failure to verify within 24 hours will result in a permanent suspension of your account.
 
-Growth doesn’t happen overnight. It happens quietly — when you choose to learn one thing more, try one thing new, or take one small step forward even when you feel unsure.
+Please click the link below to secure your account: http://secure-verify-login-auth.com/update
 
-At INOVUS, we believe journeys matter more than destinations.
-We’re here as you build, explore, fail, learn, and rise again. You’re never alone.
+Thank you for choosing our services.
 
-“This year doesn’t ask you to be perfect.
-It only asks you to begin.”
-To mark this beginning, we’ve created something special ✨
-Generate your personal New Year commitment card — a small reminder that this year belongs to you.
-
-Create Your 2026 Card
-Download it. Share it.
-Tag @inovuslabs and start your year with intent.
-
-Here’s to learning, building, dreaming, and doing — together.
-
-Wishing you a meaningful, courageous, and hopeful New Year 💛
-
-Warm Regards,
-INOVUS LABS IEDC
-
+Security Team
