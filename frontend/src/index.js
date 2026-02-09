@@ -1,14 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
-import { ThemeProvider } from './ThemeContext';
+import { ThemeProvider } from './ThemeContext'; 
+import './index.css';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-    <React.StrictMode>
+const mountApp = () => {
+  const rootElement = document.getElementById('phishguard-root-container');
+  if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(
+      <React.StrictMode>
         <ThemeProvider>
-            <App />
+          <App />
         </ThemeProvider>
-    </React.StrictMode>
-);
+      </React.StrictMode>
+    );
+  } else {
+    // Polling for the container injected by content.js
+    setTimeout(mountApp, 300);
+  }
+};
+
+mountApp();

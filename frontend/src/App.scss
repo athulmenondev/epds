@@ -1,194 +1,57 @@
-// Material 3 Design Tokens
-.light-theme {
-  --bg-color: #fdfbff;
-  --card-bg: #ffffff;
-  --text-main: #1a1c1e;
-  --primary: #0061a4;
-  --on-primary: #ffffff;
-  --surface-variant: #e1e2ec;
-  --outline: #74777f;
-}
-
-.dark-theme {
-  --bg-color: #1a1c1e;
-  --card-bg: #1c1b1f;
-  --text-main: #e2e2e6;
-  --primary: #d1e4ff;
-  --on-primary: #003258;
-  --surface-variant: #44474e;
-  --outline: #939099;
-}
-
-.app-wrapper {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  min-height: 100vh;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
-
-// Interactive Blobs
-.background-blobs {
+/* Scoping all styles to the extension ID */
+#phishguard-root-container {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  filter: blur(100px);
-  pointer-events: none;
+  right: 0;
+  width: 380px; /* Sidebar width */
+  height: 100vh;
+  z-index: 2147483647; /* Max possible z-index */
+  background: transparent; 
+  pointer-events: none; /* Allows clicking Gmail underneath if UI is empty */
 
-  .blob {
-    position: absolute;
-    width: 50vw;
-    height: 50vw;
-    border-radius: 50%;
-    background: var(--primary);
-    opacity: 0.15;
-    animation: drift 25s infinite alternate ease-in-out;
-  }
-
-  .blob1 {
-    top: -10%;
-    left: -10%;
-  }
-
-  .blob2 {
-    bottom: -10%;
-    right: -10%;
-    background: #b0c4de;
-    animation-delay: -7s;
-  }
-}
-
-@keyframes drift {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-
-  to {
-    transform: translate(10%, 15%) scale(1.1);
-  }
-}
-
-.header {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  margin: 40px 0;
-
-  .logo-container {
+  .app-wrapper {
+    pointer-events: auto; /* Re-enable clicks for your app */
+    height: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 0.5rem;
-
-    .logo {
-      height: 70px;
-      width: auto;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: scale(1.05);
-      }
-    }
+    flex-direction: column;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    font-family: 'Inter', sans-serif;
+    
+    &.dark { background-color: #1a1a2e; color: #ffffff; }
+    &.light { background-color: #f8f9fa; color: #212529; }
   }
 
-  h1 {
-    font-size: 3.5rem;
-    font-weight: 300;
-    color: var(--primary);
-    margin: 0;
+  /* Resetting Gmail's global button/input styles inside our app */
+  button, input, textarea {
+    all: revert; 
+    box-sizing: border-box;
   }
 
-  p {
-    color: var(--outline);
-    font-size: 1.1rem;
-  }
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  z-index: 2;
-  gap: 2rem;
-}
-
-.theme-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--surface-variant);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 100px;
-  color: var(--text-main);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: var(--outline);
-    color: white;
-  }
-}
-
-.loader-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  margin: 3rem 0;
-  animation: fadeIn 0.5s ease-in-out;
-
-  p {
-    font-size: 1.2rem;
-    color: var(--primary);
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
-}
-
-.loader-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--surface-variant);
-  border-top: 4px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
+  .header {
+    padding: 20px;
+    text-align: center;
+    .logo { width: 45px; margin-bottom: 10px; }
+    h1 { font-size: 1.5rem; margin: 0; }
   }
 
-  to {
-    transform: rotate(360deg);
+  .theme-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
   }
-}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  /* Ensure your blobs stay within the sidebar */
+  .background-blobs {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
   }
 }

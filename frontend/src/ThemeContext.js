@@ -9,9 +9,8 @@ export const ThemeProvider = ({ children }) => {
 
     return (
         <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-            <div className={isDarkMode ? 'dark-theme' : 'light-theme'}>
-                {children}
-            </div>
+            {/* Removed the extra div here to let App.jsx handle the class */}
+            {children}
         </ThemeContext.Provider>
     );
 };
