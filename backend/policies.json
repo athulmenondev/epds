@@ -1,0 +1,8 @@
+{
+  "restricted_keywords": ["confidential", "internal only", "blueprint", "salary"],
+  "internal_domains": ["yourcollege.edu", "company.com"],
+  "patterns": {
+    "Project Secret": "Project-[A-Z]{3}-[0-9]{4}",
+    "Internal ID": "ID-[0-9]{6}"
+  }
+}
