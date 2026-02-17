@@ -1,45 +1,48 @@
 import React, { useState } from 'react';
 import './EmailForm.scss';
 
-const EmailForm = ({ onAnalyze }) => {
-    const [emailType, setEmailType] = useState('receiving'); // 'receiving' or 'sending'
+const EmailForm = ({ onAnalyze, mode }) => {
+    // If mode is passed from props, use it. Otherwise use internal state.
+    const [localMode, setLocalMode] = useState('receiving');
     const [content, setContent] = useState('');
-    const [recipient, setRecipient] = useState(''); // Added for DLP check
+    const [recipient, setRecipient] = useState('');
+
+    const currentMode = mode || localMode;
 
     const handleSubmit = () => {
-        if (!content.trim()) {
-            alert("Please paste some content first!");
-            return;
-        }
-
-        // We send the mode and content back to App.jsx
-        // 'receiving' maps to Phishing check, 'sending' maps to DLP check
+        // Validation removed to support auto-scraping.
+        // If content is empty, App.jsx triggers the scraper.
+        
         onAnalyze({ 
-            mode: emailType === 'sending' ? 'outgoing' : 'incoming', 
+            mode: currentMode === 'sending' ? 'outgoing' : 'incoming', 
             content: content,
-            recipient: recipient || "external@unknown.com" 
+            recipient: recipient || "" 
         });
     };
 
     return (
         <div className="container">
-            <div className="toggleContainer">
-                <button 
-                    className={emailType === 'sending' ? 'active' : ''} 
-                    onClick={() => setEmailType('sending')}
-                >
-                    Sending Mode (DLP)
-                </button>
-                <button 
-                    className={emailType === 'receiving' ? 'active' : ''} 
-                    onClick={() => setEmailType('receiving')}
-                >
-                    Receiving Mode (Phishing)
-                </button>
-            </div>
+            {/* If mode is controlled by parent (extension), hide these tabs or keep them sync. 
+                For now, we hide them if 'mode' prop is present to avoid confusion with the header tabs. */}
+            {!mode && (
+                <div className="toggleContainer">
+                    <button 
+                        className={localMode === 'sending' ? 'active' : ''} 
+                        onClick={() => setLocalMode('sending')}
+                    >
+                        Sending Mode (DLP)
+                    </button>
+                    <button 
+                        className={localMode === 'receiving' ? 'active' : ''} 
+                        onClick={() => setLocalMode('receiving')}
+                    >
+                        Receiving Mode (Phishing)
+                    </button>
+                </div>
+            )}
 
             {/* Show recipient field only when in Sending Mode */}
-            {emailType === 'sending' && (
+            {currentMode === 'sending' && (
                 <input 
                     type="email" 
                     className="recipientInput"
@@ -52,7 +55,7 @@ const EmailForm = ({ onAnalyze }) => {
 
             <textarea 
                 className="inputArea" 
-                placeholder={emailType === 'sending' ? "Analyze for confidential leaks..." : "Analyze for phishing threats..."} 
+                placeholder={currentMode === 'sending' ? "Type here or click Analyze to check draft..." : "Paste email here or click Analyze to scan open email..."} 
                 value={content} 
                 onChange={(e) => setContent(e.target.value)} 
             />

@@ -1,0 +1,25 @@
+/* PhishGuard Sidebar Container */
+#phishguard-root-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px;
+    height: 100vh;
+    background-color: #ffffff;
+    z-index: 99999; /* High z-index to sit on top of Gmail */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    border-left: 1px solid #e0e0e0;
+    font-family: 'Roboto', sans-serif; /* Match Gmail font or user preference */
+    display: block; /* Visible by default or controlled by React */
+    overflow: hidden;
+}
+
+/* Ensure our container doesn't block Gmail's main interaction if we want it collapsed, 
+   but for now assuming it's a persistent sidebar as requested. 
+   We might need a toggle mechanism, but the prompt says 'permanent container'.
+*/
+
+/* Reset some generic Gmail styles that might bleed in */
+#phishguard-root-container * {
+    box-sizing: border-box;
+}

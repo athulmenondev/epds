@@ -19,17 +19,17 @@
   --outline: #939099;
 }
 
-.app-wrapper {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  min-height: 100vh;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
+// .app-wrapper {
+//   background-color: var(--bg-color);
+//   color: var(--text-main);
+//   min-height: 100vh;
+//   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+//   position: relative;
+//   overflow-x: hidden;
+//   display: flex;
+//   flex-direction: column;
+//   padding: 20px;
+// }
 
 // Interactive Blobs
 .background-blobs {
@@ -191,4 +191,41 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+#phishguard-root-container {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 400px !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  background: white !important;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1) !important;
+  border-left: 1px solid #e0e0e0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.app-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+#phishguard-theme-wrapper.dark-theme {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+#phishguard-theme-wrapper.dark-theme h1, 
+#phishguard-theme-wrapper.dark-theme p {
+    color: #ffffff !important;
+}
+
+#phishguard-theme-wrapper.dark-theme .analyze-button {
+    background-color: #333 !important;
+    border: 1px solid #555 !important;
 }
