@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './EmailForm.scss';
 
-const EmailForm = ({ onAnalyze, mode, loading, content: propContent, setContent: propSetContent, recipient: propRecipient, setRecipient: propSetRecipient }) => {
+const EmailForm = ({ onAnalyze, mode, loading, content: propContent, setContent: propSetContent, recipient: propRecipient, setRecipient: propSetRecipient, setIsManualEdit }) => {
     const [localMode, setLocalMode] = useState('receiving');
     const [localContent, setLocalContent] = useState('');
     const [localRecipient, setLocalRecipient] = useState('');
@@ -70,7 +70,10 @@ const EmailForm = ({ onAnalyze, mode, loading, content: propContent, setContent:
                         : 'Paste email here or click Analyze to scan open email...'
                 }
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => { 
+                    setContent(e.target.value); 
+                    if (setIsManualEdit) setIsManualEdit(true); 
+                }}
                 onKeyDown={handleKeyDown}
                 disabled={loading}
             />

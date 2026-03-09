@@ -8,9 +8,8 @@ import './App.scss';
 
 // ─── Configuration ──────────────────────────────────────────────────────────────
 const API_CONFIG = {
-  // Primary: local Flask backend
-  LOCAL: 'http://localhost:5000',
-  // Fallback: Hugging Face hosted backend
+  // Primary & Only Target: Hugging Face hosted backend (Bypassing Localhost entirely)
+  LOCAL: 'https://athulmenondev-epds.hf.space',
   REMOTE: 'https://athulmenondev-epds.hf.space',
 };
 
@@ -26,6 +25,7 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('');
   const [emailContent, setEmailContent] = useState('');
   const [emailRecipient, setEmailRecipient] = useState('');
+  const [isManualEdit, setIsManualEdit] = useState(false);
 
   // ─── API Base URL Selection ─────────────────────────────────────────────────
   const getApiUrl = useCallback(() => {
@@ -165,7 +165,7 @@ function App() {
     setError(null);
 
     // ── Case 1: Manual content provided via form ──────────────────────────
-    if (formData && formData.content && formData.content.trim()) {
+    if (isManualEdit && formData && formData.content && formData.content.trim()) {
       const type = mode === 'receiving' ? 'inbound' : 'outbound';
       let id = 'manual-check@unknown.com';
       if (mode === 'sending' && formData.recipient) {
@@ -186,6 +186,7 @@ function App() {
 
     // ── Case 2: Extension mode — scrape from active tab ───────────────────
     if (isExtension) {
+      setEmailContent(''); // Clear out existing content on 'Analyze' click to show a fresh scrape is happening
       const messageType = mode === 'receiving' ? 'SCRAPE_EMAIL' : 'SCRAPE_DRAFT';
       setLoading(true);
       setStatusMessage(mode === 'receiving' ? 'Scraping open email...' : 'Scraping compose draft...');
@@ -211,6 +212,7 @@ function App() {
 
           // Update UI text boxes
           setEmailContent(content);
+          setIsManualEdit(false);
           if (mode === 'sending') {
             setEmailRecipient(recipient || '');
           }
@@ -238,7 +240,7 @@ function App() {
       const type = mode === 'receiving' ? 'SCRAPE_OPEN_EMAIL' : 'SCRAPE_COMPOSE_DRAFT';
       window.postMessage({ type }, '*');
     }
-  }, [mode, sendToBackend]);
+  }, [mode, sendToBackend, isManualEdit]);
 
   // ─── Legacy Message Listener (for content-script postMessage bridge) ────────
   useEffect(() => {
@@ -250,15 +252,29 @@ function App() {
       if (event.data.type === 'GMAIL_DATA') {
         const { sender, content } = event.data.payload;
         setEmailContent(content);
-        sendToBackend('inbound', sender, content);
+        if (content && content.trim()) {
+          sendToBackend('inbound', sender, content);
+        } else {
+          setResult(null);
+          setStatusMessage('');
+          setLoading(false);
+        }
       }
 
       // Handle scraped compose data from content script
       if (event.data.type === 'COMPOSE_DATA') {
         const { recipient, content } = event.data.payload;
+        setMode('sending');
         setEmailContent(content);
         setEmailRecipient(recipient || '');
-        sendToBackend('outbound', recipient, content);
+        setIsManualEdit(false);
+        if (content && content.trim()) {
+          sendToBackend('outbound', recipient, content);
+        } else {
+          setResult(null);
+          setStatusMessage('');
+          setLoading(false);
+        }
       }
 
       // Handle analysis results relayed by content script
@@ -311,14 +327,14 @@ function App() {
           <button
             id="mode-receiving"
             className={mode === 'receiving' ? 'active' : ''}
-            onClick={() => { setMode('receiving'); setResult(null); setError(null); setEmailContent(''); setEmailRecipient(''); }}
+            onClick={() => { setMode('receiving'); setResult(null); setError(null); setEmailContent(''); setEmailRecipient(''); setIsManualEdit(false); }}
           >
             🛡️ Receiving (Phishing)
           </button>
           <button
             id="mode-sending"
             className={mode === 'sending' ? 'active' : ''}
-            onClick={() => { setMode('sending'); setResult(null); setError(null); setEmailContent(''); setEmailRecipient(''); }}
+            onClick={() => { setMode('sending'); setResult(null); setError(null); setEmailContent(''); setEmailRecipient(''); setIsManualEdit(false); }}
           >
             📤 Sending (DLP)
           </button>
@@ -334,6 +350,7 @@ function App() {
           setContent={setEmailContent}
           recipient={emailRecipient}
           setRecipient={setEmailRecipient}
+          setIsManualEdit={setIsManualEdit}
         />
 
         {/* Loading State with Spinner */}
