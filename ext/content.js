@@ -24,7 +24,6 @@ async function init() {
         hostStyle.innerHTML = `
             html, body {
                 width: 70vw !important;
-                margin-left: 30vw !important;
                 overflow-x: hidden !important;
             }
         `;

@@ -1,25 +1,253 @@
-/* PhishGuard Sidebar Container */
-#phishguard-root-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 30vw;
-    height: 100vh;
-    background-color: #ffffff;
-    z-index: 99999; /* High z-index to sit on top of Gmail */
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    border-left: 1px solid #e0e0e0;
-    font-family: 'Roboto', sans-serif; /* Match Gmail font or user preference */
-    display: block; /* Visible by default or controlled by React */
-    overflow: hidden;
+/* ============================================
+   PhishGuard Extension – Right Sidebar Layout
+   Positions the panel as a fixed right-side
+   overlay inside Gmail's viewport.
+   ============================================ */
+
+/* ── 1. Root panel container ─────────────────
+   Fixed to the right edge of the viewport,
+   vertically centred, z-index above Gmail UI  */
+#phishguard-root,
+.phishguard-container,
+[id^="phishguard"],
+.phishguard-panel {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: 340px !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+
+  /* Visual styling */
+  background: linear-gradient(160deg, #e8eef7 0%, #f4f7fc 100%) !important;
+  border-left: 1px solid #c8d5e8 !important;
+  box-shadow: -4px 0 24px rgba(30, 60, 120, 0.13) !important;
+  border-radius: 0 !important;
+
+  /* Layout */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 24px 16px 16px !important;
+  overflow-y: auto !important;
+  font-family: 'Google Sans', Roboto, Arial, sans-serif !important;
+  transition: transform 0.25s cubic-bezier(.4,0,.2,1) !important;
 }
 
-/* Ensure our container doesn't block Gmail's main interaction if we want it collapsed, 
-   but for now assuming it's a persistent sidebar as requested. 
-   We might need a toggle mechanism, but the prompt says 'permanent container'.
-*/
+/* ── 2. Push Gmail's main content left so the
+        panel doesn't cover emails ─────────── */
+/* Removed highly destructive .nH rules that collapsed the Gmail DOM tree */
 
-/* Reset some generic Gmail styles that might bleed in */
-#phishguard-root-container * {
-    box-sizing: border-box;
+/* ── 3. Logo row ─────────────────────────────*/
+.phishguard-logo-row,
+.phishguard-panel .logo-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.phishguard-panel h1,
+.phishguard-title {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #1a3a6b !important;
+  margin: 0 !important;
+  letter-spacing: -0.3px !important;
+}
+
+/* ── 4. Dark-mode toggle (top-right of panel) */
+.phishguard-theme-toggle {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  background: #fff !important;
+  border: 1px solid #d0daea !important;
+  border-radius: 20px !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  color: #444 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
+}
+
+/* ── 5. Mode-toggle buttons row ─────────────*/
+.phishguard-mode-row,
+.phishguard-panel .tab-row {
+  display: flex !important;
+  gap: 8px !important;
+  margin-bottom: 16px !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+.phishguard-btn-phishing,
+.phishguard-btn-dlp {
+  flex: 1 !important;
+  padding: 8px 6px !important;
+  border-radius: 20px !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  transition: background 0.18s, box-shadow 0.18s !important;
+}
+
+.phishguard-btn-phishing {
+  background: #1a56db !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(26,86,219,.25) !important;
+}
+
+.phishguard-btn-dlp {
+  background: #fff3cd !important;
+  color: #7a5c00 !important;
+  border: 1px solid #f0d060 !important;
+}
+
+/* ── 6. Text-area card ───────────────────────*/
+.phishguard-card,
+.phishguard-panel .input-card {
+  width: 100% !important;
+  background: #fff !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  box-shadow: 0 2px 10px rgba(30,60,120,.08) !important;
+  margin-bottom: 14px !important;
+  box-sizing: border-box !important;
+}
+
+.phishguard-textarea,
+.phishguard-panel textarea {
+  width: 100% !important;
+  min-height: 140px !important;
+  border: none !important;
+  outline: none !important;
+  resize: vertical !important;
+  font-size: 13px !important;
+  color: #555 !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  line-height: 1.5 !important;
+}
+
+/* ── 7. Analyse button ───────────────────────*/
+.phishguard-analyse-btn,
+.phishguard-panel .analyze-btn {
+  width: 100% !important;
+  padding: 12px !important;
+  background: #1a56db !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 25px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  letter-spacing: 0.2px !important;
+  box-shadow: 0 3px 12px rgba(26,86,219,.3) !important;
+  transition: background 0.18s, box-shadow 0.18s !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin-bottom: 8px !important;
+}
+
+.phishguard-analyse-btn:hover {
+  background: #1440b0 !important;
+  box-shadow: 0 4px 16px rgba(26,86,219,.4) !important;
+}
+
+/* ── 8. Helper text ──────────────────────────*/
+.phishguard-hint,
+.phishguard-panel .hint-text {
+  font-size: 11.5px !important;
+  color: #888 !important;
+  text-align: center !important;
+  margin-top: 4px !important;
+}
+
+/* ── 9. Footer ───────────────────────────────*/
+.phishguard-footer,
+.phishguard-panel footer {
+  margin-top: auto !important;
+  padding-top: 16px !important;
+  font-size: 11px !important;
+  color: #aaa !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+/* ── 10. Dark-mode overrides ─────────────────*/
+.phishguard-dark #phishguard-root,
+.phishguard-dark .phishguard-panel {
+  background: linear-gradient(160deg, #181f2e 0%, #1e2840 100%) !important;
+  border-left-color: #2d3a55 !important;
+}
+
+.phishguard-dark .phishguard-title { color: #a8c4ff !important; }
+
+.phishguard-dark .phishguard-card,
+.phishguard-dark .phishguard-panel .input-card {
+  background: #232d45 !important;
+}
+
+.phishguard-dark .phishguard-textarea,
+.phishguard-dark .phishguard-panel textarea { color: #cdd8f0 !important; }
+
+.phishguard-dark .phishguard-hint { color: #667 !important; }
+.phishguard-dark .phishguard-footer { color: #556 !important; }
+
+/* ── 11. Collapse toggle button ─────────────
+   Small arrow tab on the left edge of panel   */
+.phishguard-collapse-tab {
+  position: fixed !important;
+  right: 340px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10000 !important;
+  width: 20px !important;
+  height: 48px !important;
+  background: #1a56db !important;
+  border-radius: 8px 0 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  box-shadow: -2px 0 8px rgba(26,86,219,.2) !important;
+  transition: right 0.25s cubic-bezier(.4,0,.2,1) !important;
+}
+
+/* Collapsed state */
+.phishguard-collapsed #phishguard-root,
+.phishguard-collapsed .phishguard-panel {
+  transform: translateX(340px) !important;
+}
+
+.phishguard-collapsed .phishguard-collapse-tab {
+  right: 0 !important;
+}
+
+.phishguard-collapsed [role="main"] {
+  margin-right: 0 !important;
+}
+
+/* ── 12. Scrollbar styling ───────────────────*/
+#phishguard-root::-webkit-scrollbar,
+.phishguard-panel::-webkit-scrollbar { width: 4px; }
+#phishguard-root::-webkit-scrollbar-thumb,
+.phishguard-panel::-webkit-scrollbar-thumb {
+  background: #b0c0de;
+  border-radius: 4px;
 }
