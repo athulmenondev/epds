@@ -2,7 +2,7 @@
 #phishguard-root-container {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
     width: 30vw;
     height: 100vh;
     background-color: #ffffff;
