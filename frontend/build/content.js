@@ -5,6 +5,16 @@
   container.id = 'phishguard-root-container';
   document.body.appendChild(container);
 
+  // Resize the host page to prevent the extension UI from overlapping
+  const hostStyle = document.createElement('style');
+  hostStyle.innerHTML = `
+      html, body {
+          width: 70vw !important;
+          overflow-x: hidden !important;
+      }
+  `;
+  document.head.appendChild(hostStyle);
+
   try {
     const manifestUrl = chrome.runtime.getURL('asset-manifest.json');
     const response = await fetch(manifestUrl);

@@ -3,7 +3,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 350px;
+    width: 30vw;
     height: 100vh;
     background-color: #ffffff;
     z-index: 99999; /* High z-index to sit on top of Gmail */

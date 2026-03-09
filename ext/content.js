@@ -18,6 +18,16 @@ async function init() {
         container.id = CONFIG.SIDEBAR_ID;
         document.body.appendChild(container);
         console.log("PhishGuard: Sidebar container injected.");
+
+        // Resize the host page to prevent the extension UI from overlapping
+        const hostStyle = document.createElement('style');
+        hostStyle.innerHTML = `
+            html, body {
+                width: 70vw !important;
+                overflow-x: hidden !important;
+            }
+        `;
+        document.head.appendChild(hostStyle);
     }
 
     // 2. Load React Bundle

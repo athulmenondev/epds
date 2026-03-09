@@ -12,7 +12,7 @@ const ResultDisplay = ({ result, mode }) => {
     // ─── Detect risk level ─────────────────────────────────────────────────
     const isPhishing = prediction === 'Phishing' || prediction === 'DLP VIOLATION';
     const isError = prediction === 'Error';
-    const isOutgoing = result.hasOwnProperty('violations') || mode === 'sending';
+    const isOutgoing = mode === 'sending';
 
     // ─── Dynamic strings ───────────────────────────────────────────────────
     const title = isError
