@@ -2,8 +2,8 @@
 // Injects the React sidebar and bridges communication between the page and extension.
 
 const CONFIG = {
+    LOCAL_API_URL: "https://athulmenondev-epds.hf.space",
     API_BASE_URL: "https://athulmenondev-epds.hf.space",
-    LOCAL_API_URL: "http://localhost:5000",
     SIDEBAR_ID: "phishguard-root-container"
 };
 
@@ -194,6 +194,19 @@ function attachComposeListeners(composeWindow) {
     const bodyField = composeWindow.querySelector('div[role="textbox"][contenteditable="true"]');
     const recipientField = composeWindow.querySelector('input[name="to"]')
                         || composeWindow.querySelector('div[name="to"]');
+
+    // Trigger an initial scan 500ms after the window appears
+    setTimeout(() => {
+        const content = bodyField ? bodyField.innerText : "";
+        let recipient = "unknown";
+        if (recipientField) {
+            recipient = recipientField.value || recipientField.innerText;
+        } else {
+            const toContainer = composeWindow.querySelector('.vR');
+            if (toContainer) recipient = toContainer.innerText;
+        }
+        window.postMessage({ type: 'COMPOSE_DATA', payload: { recipient, content } }, "*");
+    }, 500);
 
     let debounceTimer;
 
