@@ -1,39 +1,46 @@
 import React, { useState } from 'react';
 import './EmailForm.scss';
 
-const EmailForm = ({ onAnalyze, mode }) => {
-    // If mode is passed from props, use it. Otherwise use internal state.
+const EmailForm = ({ onAnalyze, mode, loading, content: propContent, setContent: propSetContent, recipient: propRecipient, setRecipient: propSetRecipient }) => {
     const [localMode, setLocalMode] = useState('receiving');
-    const [content, setContent] = useState('');
-    const [recipient, setRecipient] = useState('');
+    const [localContent, setLocalContent] = useState('');
+    const [localRecipient, setLocalRecipient] = useState('');
 
     const currentMode = mode || localMode;
+    const content = propContent !== undefined ? propContent : localContent;
+    const setContent = propSetContent || setLocalContent;
+    const recipient = propRecipient !== undefined ? propRecipient : localRecipient;
+    const setRecipient = propSetRecipient || setLocalRecipient;
 
     const handleSubmit = () => {
-        // Validation removed to support auto-scraping.
-        // If content is empty, App.jsx triggers the scraper.
-        
-        onAnalyze({ 
-            mode: currentMode === 'sending' ? 'outgoing' : 'incoming', 
+        onAnalyze({
+            mode: currentMode === 'sending' ? 'outgoing' : 'incoming',
             content: content,
-            recipient: recipient || "" 
+            recipient: recipient || '',
         });
+    };
+
+    const handleKeyDown = (e) => {
+        // Ctrl+Enter to submit
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            if (!loading) handleSubmit();
+        }
     };
 
     return (
         <div className="container">
-            {/* If mode is controlled by parent (extension), hide these tabs or keep them sync. 
-                For now, we hide them if 'mode' prop is present to avoid confusion with the header tabs. */}
+            {/* Internal mode toggle (hidden when parent controls mode) */}
             {!mode && (
                 <div className="toggleContainer">
-                    <button 
-                        className={localMode === 'sending' ? 'active' : ''} 
+                    <button
+                        className={localMode === 'sending' ? 'active' : ''}
                         onClick={() => setLocalMode('sending')}
                     >
                         Sending Mode (DLP)
                     </button>
-                    <button 
-                        className={localMode === 'receiving' ? 'active' : ''} 
+                    <button
+                        className={localMode === 'receiving' ? 'active' : ''}
                         onClick={() => setLocalMode('receiving')}
                     >
                         Receiving Mode (Phishing)
@@ -41,28 +48,56 @@ const EmailForm = ({ onAnalyze, mode }) => {
                 </div>
             )}
 
-            {/* Show recipient field only when in Sending Mode */}
+            {/* Recipient field (Sending Mode only) */}
             {currentMode === 'sending' && (
-                <input 
-                    type="email" 
+                <input
+                    type="email"
+                    id="recipient-input"
                     className="recipientInput"
-                    placeholder="Recipient email (e.g., boss@company.com)" 
+                    placeholder="Recipient email (e.g., boss@company.com)"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    style={{ marginBottom: '10px', width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    disabled={loading}
                 />
             )}
 
-            <textarea 
-                className="inputArea" 
-                placeholder={currentMode === 'sending' ? "Type here or click Analyze to check draft..." : "Paste email here or click Analyze to scan open email..."} 
-                value={content} 
-                onChange={(e) => setContent(e.target.value)} 
+            <textarea
+                id="content-input"
+                className="inputArea"
+                placeholder={
+                    currentMode === 'sending'
+                        ? 'Type here or click Analyze to check draft...'
+                        : 'Paste email here or click Analyze to scan open email...'
+                }
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={loading}
             />
 
-            <button className="submitBtn" onClick={handleSubmit}>
-                Analyze Content
+            <button
+                id="analyze-button"
+                className={`submitBtn ${loading ? 'is-loading' : ''}`}
+                onClick={handleSubmit}
+                disabled={loading}
+            >
+                {loading ? (
+                    <span className="btn-loading">
+                        <span className="btn-spinner"></span>
+                        Analyzing...
+                    </span>
+                ) : (
+                    <>
+                        {currentMode === 'sending' ? '🔍 Scan for DLP' : '🛡️ Analyze Content'}
+                    </>
+                )}
             </button>
+
+            <p className="form-hint">
+                {currentMode === 'sending'
+                    ? 'Leave empty to auto-scan your compose draft'
+                    : 'Leave empty to auto-scan the currently open email'}
+            </p>
         </div>
     );
 };

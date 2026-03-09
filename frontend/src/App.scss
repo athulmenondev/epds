@@ -229,3 +229,70 @@
     background-color: #333 !important;
     border: 1px solid #555 !important;
 }
+
+// ─── Mode Tabs ────────────────────────────────────────────────────────────────
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+
+  button {
+    background: var(--surface-variant);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 100px;
+    color: var(--text-main);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: var(--outline);
+      color: white;
+    }
+
+    &.active {
+      background: var(--primary);
+      color: var(--on-primary);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// ─── Error Banner ─────────────────────────────────────────────────────────────
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  color: #5d4200;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  animation: slideIn 0.3s ease;
+  max-width: 700px;
+  width: 100%;
+
+  .error-icon {
+    font-size: 1.3rem;
+  }
+}
+
+// ─── Quick Scan Banner ────────────────────────────────────────────────────────
+.quick-scan-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #0d47a1;
+  border: 1px solid rgba(13, 71, 161, 0.2);
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  animation: slideIn 0.3s ease;
+  max-width: 700px;
+  width: 100%;
+}

@@ -1,43 +1,64 @@
 import React from 'react';
 import './ResultDisplay.scss';
 
-const ResultDisplay = ({ result }) => {
-    // 1. Detect Mode: If 'violations' exists, it's an Outgoing (DLP) scan.
-    const isOutgoing = result.hasOwnProperty('violations');
-    const isHighRisk = result.prediction === "Phishing";
+const ResultDisplay = ({ result, mode }) => {
+    // ─── Normalize prediction label ────────────────────────────────────────
+    // Support both backend response formats:
+    //   { prediction: "Phishing" | "Legitimate" }
+    //   { label: "Phishing" | "Legitimate" }
+    const prediction = result.prediction || result.label || 'Unknown';
+    const confidence = result.confidence ?? (result.confidence_score != null ? result.confidence_score * 100 : 0);
 
-    // 2. Dynamic UI Strings
-    const title = isOutgoing 
-        ? (isHighRisk ? "Policy Violation Detected" : "Clear for Transmission") 
-        : (isHighRisk ? "Phishing Threat Detected" : "Email Appears Safe");
+    // ─── Detect risk level ─────────────────────────────────────────────────
+    const isPhishing = prediction === 'Phishing' || prediction === 'DLP VIOLATION';
+    const isError = prediction === 'Error';
+    const isOutgoing = result.hasOwnProperty('violations') || mode === 'sending';
 
-    const description = isOutgoing
-        ? `DLP Inspection finalized with ${result.confidence}% confidence.`
-        : `Random Forest analysis finalized with ${result.confidence}% confidence.`;
+    // ─── Dynamic strings ───────────────────────────────────────────────────
+    const title = isError
+        ? 'Analysis Error'
+        : isOutgoing
+            ? (isPhishing ? 'Policy Violation Detected' : 'Clear for Transmission')
+            : (isPhishing ? 'Phishing Threat Detected' : 'Email Appears Safe');
 
-    const recommendation = isHighRisk 
-        ? (isOutgoing 
-            ? "CRITICAL: Do not send. Remove sensitive patterns or keywords identified below." 
-            : "WARNING: Do not interact. This email shows high-risk linguistic patterns.")
-        : "No immediate security threats were identified in this content.";
+    const description = isError
+        ? 'Unable to complete analysis.'
+        : isOutgoing
+            ? `DLP Inspection finalized with ${confidence}% confidence.`
+            : `Random Forest analysis finalized with ${confidence}% confidence.`;
+
+    const recommendation = isError
+        ? result.details || 'Check if the Flask server is running.'
+        : isPhishing
+            ? (isOutgoing
+                ? 'CRITICAL: Do not send. Remove sensitive patterns or keywords identified below.'
+                : 'WARNING: Do not interact. This email shows high-risk linguistic patterns.')
+            : 'No immediate security threats were identified in this content.';
+
+    // ─── Risk theme class ─────────────────────────────────────────────────
+    const themeClass = isError ? 'is-error' : isPhishing ? 'is-phishing' : 'is-safe';
 
     return (
-        <div className={`result-container ${isHighRisk ? 'is-phishing' : 'is-safe'}`}>
+        <div className={`result-container ${themeClass}`} id="result-display">
             <div className="result-header">
                 <div className="title-section">
                     <h2>{title}</h2>
                     <p className="meta">{description}</p>
                 </div>
-                <div className="status-badge">
-                    {isHighRisk ? "🚩 HIGH RISK" : "✅ LOW RISK"}
+                <div className={`status-badge ${themeClass}`} id="risk-badge">
+                    {isError
+                        ? '❌ ERROR'
+                        : isPhishing
+                            ? '🚩 HIGH RISK'
+                            : '✅ LOW RISK'}
                 </div>
             </div>
 
             <hr className="divider" />
 
-            {/* 3. Multi-Stage Pipeline Findings (Only shows if violations exist) */}
-            {isOutgoing && isHighRisk && result.violations && result.violations.length > 0 && (
-                <div className="violations-area">
+            {/* Pipeline Findings (DLP violations) */}
+            {isOutgoing && isPhishing && result.violations && result.violations.length > 0 && (
+                <div className="violations-area" id="violations-list">
                     <h3>Pipeline Findings:</h3>
                     <ul className="violation-list">
                         {result.violations.map((v, index) => (
@@ -49,23 +70,25 @@ const ResultDisplay = ({ result }) => {
                 </div>
             )}
 
-            {/* 4. Final Verdict and Action */}
+            {/* System Recommendation */}
             <div className="action-box">
                 <h4>System Recommendation:</h4>
                 <p>{recommendation}</p>
             </div>
 
-            {/* Visual Probability Bar */}
-            <div className="probability-wrapper">
-                <label>Confidence Level:</label>
-                <div className="progress-bar-bg">
-                    <div 
-                        className="progress-bar-fill" 
-                        style={{ width: `${result.confidence}%` }}
-                    ></div>
+            {/* Confidence Progress Bar */}
+            {!isError && (
+                <div className="probability-wrapper">
+                    <label>Confidence Level:</label>
+                    <div className="progress-bar-bg">
+                        <div
+                            className={`progress-bar-fill ${themeClass}`}
+                            style={{ width: `${Math.min(confidence, 100)}%` }}
+                        ></div>
+                    </div>
+                    <span className="confidence-value">{confidence}%</span>
                 </div>
-                <span>{result.confidence}%</span>
-            </div>
+            )}
         </div>
     );
 };

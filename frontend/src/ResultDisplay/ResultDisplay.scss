@@ -1,21 +1,198 @@
 .result-container {
     max-width: 700px;
-    margin: 24px auto;
-    padding: 24px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 28px;
     border-radius: 24px;
     animation: slideIn 0.5s ease;
     position: relative;
     z-index: 2;
+    backdrop-filter: blur(10px);
+
+    // ─── Phishing / High Risk (Red Theme) ──────────────────────────────
+    &.is-phishing {
+        background: linear-gradient(135deg, #ffdad6 0%, #ffb4ab 100%);
+        color: #410002;
+        border: 1px solid rgba(186, 26, 26, 0.2);
+        box-shadow: 0 8px 32px rgba(186, 26, 26, 0.15);
+    }
+
+    // ─── Safe / Low Risk (Green Theme) ─────────────────────────────────
+    &.is-safe {
+        background: linear-gradient(135deg, #d7f0db 0%, #b4e6bc 100%);
+        color: #002107;
+        border: 1px solid rgba(0, 110, 26, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 110, 26, 0.1);
+    }
+
+    // ─── Error (Amber Theme) ───────────────────────────────────────────
+    &.is-error {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        color: #5d4200;
+        border: 1px solid rgba(255, 152, 0, 0.3);
+        box-shadow: 0 8px 32px rgba(255, 152, 0, 0.1);
+    }
+}
+
+.result-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .title-section {
+        flex: 1;
+        min-width: 200px;
+
+        h2 {
+            margin: 0 0 6px 0;
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .meta {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    }
+}
+
+.status-badge {
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    animation: badgePulse 2s ease-in-out infinite;
 
     &.is-phishing {
-        background: #ffdad6;
-        color: #410002;
+        background: #ba1a1a;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(186, 26, 26, 0.3);
     }
 
     &.is-safe {
-        background: #d7f0db;
-        color: #002107;
+        background: #006e1a;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 110, 26, 0.25);
     }
+
+    &.is-error {
+        background: #e65100;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25);
+    }
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 16px 0;
+}
+
+.violations-area {
+    margin-bottom: 16px;
+
+    h3 {
+        margin: 0 0 10px 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+}
+
+.violation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.violation-item {
+    padding: 10px 14px;
+    background: rgba(186, 26, 26, 0.08);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    border-left: 3px solid #ba1a1a;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateX(4px);
+    }
+}
+
+.warning-dot {
+    color: #ba1a1a;
+    margin-right: 6px;
+}
+
+.action-box {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+
+    h4 {
+        margin: 0 0 8px 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+}
+
+.probability-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+}
+
+.progress-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.is-phishing {
+        background: linear-gradient(90deg, #ff6b6b, #ba1a1a);
+    }
+
+    &.is-safe {
+        background: linear-gradient(90deg, #6bcf7f, #006e1a);
+    }
+
+    &.is-error {
+        background: linear-gradient(90deg, #ffb74d, #e65100);
+    }
+}
+
+.confidence-value {
+    font-weight: 700;
+    font-size: 0.95rem;
+    min-width: 50px;
+    text-align: right;
 }
 
 @keyframes slideIn {
@@ -23,9 +200,17 @@
         opacity: 0;
         transform: translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.03);
     }
 }
