@@ -8,9 +8,9 @@ import './App.scss';
 
 // ─── Configuration ──────────────────────────────────────────────────────────────
 const API_CONFIG = {
-  // Primary & Only Target: Hugging Face hosted backend (Bypassing Localhost entirely)
-  LOCAL: 'https://athulmenondev-epds.hf.space',
-  REMOTE: 'https://athulmenondev-epds.hf.space',
+  // Primary Target: Local Flask backend
+  LOCAL: 'http://localhost:7860',
+  REMOTE: 'http://localhost:7860',
 };
 
 // Detect if running inside the Chrome extension context
@@ -317,7 +317,8 @@ function App() {
       <header className="header">
         <div className="logo-container">
           <img
-            src={chrome.runtime?.getURL ? chrome.runtime.getURL('logo.png') : './logo.png'}
+            src={chrohttp://localhost:7860',
+  REMOTE: 'http://localhost:7860me.runtime?.getURL ? chrome.runtime.getURL('logo.png') : './logo.png'}
             alt="PhishGuard Logo"
             className="logo"
           />

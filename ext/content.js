@@ -2,8 +2,8 @@
 // Injects the React sidebar and bridges communication between the page and extension.
 
 const CONFIG = {
-    LOCAL_API_URL: "https://athulmenondev-epds.hf.space",
-    API_BASE_URL: "https://athulmenondev-epds.hf.space",
+    LOCAL_API_URL: "http://localhost:7860",
+    API_BASE_URL: "http://localhost:7860",
     SIDEBAR_ID: "phishguard-root-container"
 };
 
@@ -25,6 +25,14 @@ async function init() {
             html, body {
                 width: 70vw !important;
                 overflow-x: hidden !important;
+            }
+            
+            /* Force the Gmail Compose Dialog (.inboxsdk__compose) to align to the absolute Left of the screen */
+            .inboxsdk__compose,
+            div[role="dialog"][aria-label="New Message"],
+            div[role="dialog"]:has(table.aoP) {
+                right: auto !important;
+                left: 20px !important;
             }
         `;
         document.head.appendChild(hostStyle);
